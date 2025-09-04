@@ -1,29 +1,54 @@
 {
   "easy": [
     {
-      "question": "What is the capital of France?",
-      "options": ["Berlin", "Madrid", "Paris", "Rome"],
-      "correctAnswer": "Paris"
+      "question": "Which HTML tag is used to create a hyperlink?",
+      "options": ["<a>", "<link>", "<href>", "<url>"],
+      "correctAnswer": "<a>"
     },
     {
-      "question": "Which planet is known as the Red Planet?",
-      "options": ["Earth", "Mars", "Jupiter", "Venus"],
-      "correctAnswer": "Mars"
+      "question": "Which CSS property is used to change text color?",
+      "options": ["font-color", "text-style", "color", "background-color"],
+      "correctAnswer": "color"
     },
     {
-      "question": "What is the largest mammal in the world?",
-      "options": ["Elephant", "Blue Whale", "Giraffe", "Hippopotamus"],
-      "correctAnswer": "Blue Whale"
+      "question": "Which JavaScript keyword is used to declare a variable?",
+      "options": ["int", "let", "define", "varname"],
+      "correctAnswer": "let"
     },
     {
-      "question": "Who wrote 'Romeo and Juliet'?",
-      "options": ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"],
-      "correctAnswer": "William Shakespeare"
+      "question": "In HTML, which tag is used for the largest heading?",
+      "options": ["<h6>", "<h3>", "<h1>", "<header>"],
+      "correctAnswer": "<h1>"
     },
     {
-      "question": "What is the chemical symbol for gold?",
-      "options": ["Go", "Gd", "Au", "Ag"],
-      "correctAnswer": "Au"
+      "question": "Which of the following is a JavaScript framework for frontend development?",
+      "options": ["Laravel", "Django", "React", "Flask"],
+      "correctAnswer": "React"
+    },
+    {
+      "question": "Which attribute is used in HTML to provide alternative text for an image?",
+      "options": ["title", "alt", "src", "href"],
+      "correctAnswer": "alt"
+    },
+    {
+      "question": "Which CSS property is used to change the background color of an element?",
+      "options": ["color", "bgcolor", "background-color", "background-style"],
+      "correctAnswer": "background-color"
+    },
+    {
+      "question": "Which symbol is used for comments in JavaScript?",
+      "options": ["<!-- comment -->", "// comment", "# comment", "/* comment */"],
+      "correctAnswer": "// comment"
+    },
+    {
+      "question": "Which HTML element is used to insert JavaScript code?",
+      "options": ["<script>", "<js>", "<javascript>", "<code>"],
+      "correctAnswer": "<script>"
+    },
+    {
+      "question": "In React, which hook is used to create state in a functional component?",
+      "options": ["useEffect", "useState", "useReducer", "useContext"],
+      "correctAnswer": "useState"
     }
   ],
   "medium": [
@@ -51,6 +76,31 @@
       "question": "Which of the following is NOT a React hook?",
       "options": ["useState", "useEffect", "useComponent", "useContext"],
       "correctAnswer": "useComponent"
+    },
+    {
+      "question": "Which data structure uses FIFO (First In, First Out)?",
+      "options": ["Stack", "Queue", "Tree", "Graph"],
+      "correctAnswer": "Queue"
+    },
+    {
+      "question": "What is the time complexity of binary search?",
+      "options": ["O(n)", "O(log n)", "O(n log n)", "O(1)"],
+      "correctAnswer": "O(log n)"
+    },
+    {
+      "question": "Which data structure is used in Depth First Search (DFS)?",
+      "options": ["Queue", "Stack", "Linked List", "Heap"],
+      "correctAnswer": "Stack"
+    },
+    {
+      "question": "Which sorting algorithm has the best average time complexity?",
+      "options": ["Bubble Sort", "Insertion Sort", "Quick Sort", "Selection Sort"],
+      "correctAnswer": "Quick Sort"
+    },
+    {
+      "question": "What does a HashMap use internally?",
+      "options": ["Arrays", "Stacks", "Queues", "Graphs"],
+      "correctAnswer": "Arrays"
     }
   ],
   "hard": [
@@ -78,6 +128,31 @@
       "question": "What does the useEffect hook do in React?",
       "options": ["Manages component state", "Handles component styling", "Performs side effects in functional components", "Creates component props"],
       "correctAnswer": "Performs side effects in functional components"
+    },
+    {
+      "question": "What is the time complexity of Merge Sort?",
+      "options": ["O(n)", "O(n log n)", "O(n^2)", "O(log n)"],
+      "correctAnswer": "O(n log n)"
+    },
+    {
+      "question": "Which data structure is used for implementing recursion?",
+      "options": ["Queue", "Stack", "Heap", "Tree"],
+      "correctAnswer": "Stack"
+    },
+    {
+      "question": "Which algorithm is used to find the shortest path in a weighted graph?",
+      "options": ["DFS", "BFS", "Dijkstra's Algorithm", "Quick Sort"],
+      "correctAnswer": "Dijkstra's Algorithm"
+    },
+    {
+      "question": "What is the space complexity of Quick Sort in the worst case?",
+      "options": ["O(1)", "O(n)", "O(log n)", "O(n^2)"],
+      "correctAnswer": "O(n)"
+    },
+    {
+      "question": "Which React hook is used to optimize performance by memoizing values?",
+      "options": ["useEffect", "useCallback", "useMemo", "useReducer"],
+      "correctAnswer": "useMemo"
     }
   ]
 }

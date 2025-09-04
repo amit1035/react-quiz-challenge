@@ -14,7 +14,6 @@ const useQuiz = () => {
   const [difficulty, setDifficulty] = useState('medium');
   const [timeLeft, setTimeLeft] = useState(30);
   const [timerActive, setTimerActive] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null);
 
   // Initialize quiz
   useEffect(() => {
@@ -23,12 +22,7 @@ const useQuiz = () => {
         setLoading(true);
         const fetchedQuestions = await fetchQuestions(10, difficulty);
         setQuestions(fetchedQuestions);
-        // Initialize userAnswers with null values
-        const initialAnswers = new Array(fetchedQuestions.length).fill(null);
-        setUserAnswers(initialAnswers);
-        setScore(0);
-        setCurrentQuestionIndex(0);
-        setSelectedOption(null);
+        setUserAnswers(new Array(fetchedQuestions.length).fill(null));
         setTimerActive(true);
       } catch (err) {
         setError('Failed to load questions. Please try again later.');
@@ -58,47 +52,36 @@ const useQuiz = () => {
   }, [timerActive, timeLeft]);
 
   const handleAnswer = (answerIndex) => {
-    // Update the selected option immediately
-    setSelectedOption(answerIndex);
-    
-    // Create a new array with the updated answer
     const newUserAnswers = [...userAnswers];
     newUserAnswers[currentQuestionIndex] = answerIndex;
     setUserAnswers(newUserAnswers);
     
-    // Check if answer is correct and update score
+    // Check if answer is correct - FIXED: Compare option text with correct answer text
     if (answerIndex !== null) {
       const selectedOptionText = questions[currentQuestionIndex].options[answerIndex];
       const correctAnswerText = questions[currentQuestionIndex].correctAnswer;
       if (selectedOptionText === correctAnswerText) {
-        setScore(prevScore => prevScore + 1);
+        setScore(prevScore => prevScore + 1); // Use functional update to avoid stale state
       }
     }
     
     // Reset timer for next question
     setTimeLeft(30);
     
-    // Move to next question or finish quiz after a short delay
-    setTimeout(() => {
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(prevIndex => prevIndex + 1);
-        setSelectedOption(null); // Reset selected option for next question
-      } else {
-        // Quiz finished
-        setTimerActive(false);
-        // Make sure we save the final state before navigating
-        setTimeout(() => {
-          navigate('/results');
-        }, 100);
-      }
-    }, 500);
+    // Move to next question or finish quiz
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else {
+      // Quiz finished
+      setTimerActive(false);
+      navigate('/results');
+    }
   };
 
   const restartQuiz = () => {
     setCurrentQuestionIndex(0);
     setUserAnswers([]);
     setScore(0);
-    setSelectedOption(null);
     setTimeLeft(30);
     setTimerActive(true);
     navigate('/');
@@ -106,7 +89,10 @@ const useQuiz = () => {
 
   const changeDifficulty = (newDifficulty) => {
     setDifficulty(newDifficulty);
-    // The rest will be handled by the initializeQuiz effect
+    setCurrentQuestionIndex(0);
+    setUserAnswers([]);
+    setScore(0);
+    setTimeLeft(30);
   };
 
   return {
@@ -119,7 +105,6 @@ const useQuiz = () => {
     difficulty,
     timeLeft,
     timerActive,
-    selectedOption,
     handleAnswer,
     restartQuiz,
     changeDifficulty

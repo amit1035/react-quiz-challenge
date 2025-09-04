@@ -1,5 +1,5 @@
 // src/context/QuizContext.js
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchQuestions } from '../services/triviaAPI';
 
@@ -46,8 +46,23 @@ export const QuizProvider = ({ children }) => {
     initializeQuiz();
   }, [difficulty]);
 
-  // Wrap handleAnswer in useCallback to avoid dependency issues
-  const handleAnswer = useCallback((answerIndex) => {
+  // Timer effect
+  useEffect(() => {
+    let timer;
+    
+    if (timerActive && timeLeft > 0) {
+      timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+    } else if (timerActive && timeLeft === 0) {
+      // Time's up, lock in no answer and move to next question
+      handleAnswer(null);
+    }
+    
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [timerActive, timeLeft]);
+
+  const handleAnswer = (answerIndex) => {
     console.log("handleAnswer called with:", answerIndex);
     console.log("Current question index:", currentQuestionIndex);
     console.log("Current userAnswers before update:", userAnswers);
@@ -102,23 +117,7 @@ export const QuizProvider = ({ children }) => {
         }, 100);
       }
     }, 500);
-  }, [currentQuestionIndex, userAnswers, questions, navigate]);
-
-  // Timer effect - now includes handleAnswer in dependencies
-  useEffect(() => {
-    let timer;
-    
-    if (timerActive && timeLeft > 0) {
-      timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-    } else if (timerActive && timeLeft === 0) {
-      // Time's up, lock in no answer and move to next question
-      handleAnswer(null);
-    }
-    
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
-  }, [timerActive, timeLeft, handleAnswer]); // Added handleAnswer to dependencies
+  };
 
   const restartQuiz = () => {
     console.log("Restarting quiz");
