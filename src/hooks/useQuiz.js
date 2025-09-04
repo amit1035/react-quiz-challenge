@@ -1,5 +1,5 @@
 // src/hooks/useQuiz.js
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchQuestions } from '../services/triviaAPI';
 
@@ -17,7 +17,7 @@ const useQuiz = () => {
   const [selectedOption, setSelectedOption] = useState(null);
   
   // Create a ref for handleAnswer to avoid dependency issues
-  const handleAnswerRef = useRef(null);
+  const handleAnswerRef = useRef();
 
   // Initialize quiz
   useEffect(() => {
@@ -42,23 +42,8 @@ const useQuiz = () => {
     initializeQuiz();
   }, [difficulty]);
 
-  // Timer effect - using ref to avoid dependency issues
-  useEffect(() => {
-    let timer;
-    
-    if (timerActive && timeLeft > 0) {
-      timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-    } else if (timerActive && timeLeft === 0) {
-      // Time's up, lock in no answer and move to next question
-      handleAnswerRef.current(null);
-    }
-    
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
-  }, [timerActive, timeLeft]); // No handleAnswer dependency needed
-
-  const handleAnswer = (answerIndex) => {
+  // Memoize handleAnswer with useCallback
+  const handleAnswer = useCallback((answerIndex) => {
     setSelectedOption(answerIndex);
     
     const newUserAnswers = [...userAnswers];
@@ -86,12 +71,28 @@ const useQuiz = () => {
         }, 100);
       }
     }, 500);
-  };
-  
+  }, [currentQuestionIndex, userAnswers, questions, navigate]);
+
   // Update the ref whenever handleAnswer changes
   useEffect(() => {
     handleAnswerRef.current = handleAnswer;
   }, [handleAnswer]);
+
+  // Timer effect - now uses the ref instead of direct function
+  useEffect(() => {
+    let timer;
+    
+    if (timerActive && timeLeft > 0) {
+      timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+    } else if (timerActive && timeLeft === 0) {
+      // Time's up, lock in no answer and move to next question
+      handleAnswerRef.current(null);
+    }
+    
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [timerActive, timeLeft]); // No handleAnswer dependency needed
 
   const restartQuiz = () => {
     setCurrentQuestionIndex(0);
