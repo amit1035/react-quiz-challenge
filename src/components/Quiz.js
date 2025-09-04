@@ -17,8 +17,10 @@ const Quiz = () => {
     selectedOption,
     handleAnswer,
     changeDifficulty,
-    userAnswers,
-    score
+    // eslint-disable-next-line no-unused-vars
+    userAnswers, // Now used to track progress
+    // eslint-disable-next-line no-unused-vars
+    score        // Now displayed to user
   } = useQuizContext();
 
   if (loading) {
@@ -52,11 +54,15 @@ const Quiz = () => {
 
   const currentQuestion = questions[currentQuestionIndex];
   const hasAnswered = selectedOption !== null;
+  
+  // Calculate progress percentage using userAnswers
+  const progressPercentage = (userAnswers.length / questions.length) * 100;
 
   return (
     <div className="quiz-container">
       <header className="quiz-header">
         <h1>Quiz App</h1>
+        <div className="score-display">Score: {score}</div>
         <DifficultySelector 
           currentDifficulty={difficulty} 
           onChange={changeDifficulty} 
@@ -67,6 +73,7 @@ const Quiz = () => {
         <ProgressBar 
           current={currentQuestionIndex + 1} 
           total={questions.length} 
+          percentage={progressPercentage}
         />
         <Timer timeLeft={timeLeft} />
       </div>
@@ -87,6 +94,7 @@ const Quiz = () => {
       
       <div className="quiz-navigation">
         <p>Question {currentQuestionIndex + 1} of {questions.length}</p>
+        <p>Answered: {currentQuestionIndex + 1}/{questions.length}</p>
         <button 
           className="next-button"
           onClick={() => handleAnswer(selectedOption)}

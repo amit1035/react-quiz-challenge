@@ -1,49 +1,99 @@
 // src/components/Results.js
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuizContext } from '../context/QuizContext';
+import { useGlobalState } from '../GlobalState';
 
 const Results = () => {
-  const {
-    questions,
-    userAnswers,
-    score,
-    restartQuiz
-  } = useQuizContext();
-  
-  // Debug: Log the userAnswers and score to see what's happening
+  const navigate = useNavigate();
+  const { restartQuiz } = useQuizContext();
+  const { quizResults, isInitialized } = useGlobalState();
+  const [results, setResults] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Get results from global state
   useEffect(() => {
-    console.log("Results component - User Answers:", userAnswers);
-    console.log("Results component - Score:", score);
-  }, [userAnswers, score]);
-  
+    console.log("Results component mounted");
+    console.log("Global quiz results:", quizResults);
+    console.log("Is initialized:", isInitialized);
+    
+    if (isInitialized) {
+      if (quizResults) {
+        console.log("Results found in global state:", quizResults);
+        setResults(quizResults);
+      } else {
+        console.log("No results found in global state");
+        setResults(null);
+      }
+      setLoading(false);
+    }
+  }, [quizResults, isInitialized]);
+
   // Save high score to localStorage
   useEffect(() => {
-    const highScore = localStorage.getItem('quizHighScore');
-    if (!highScore || score > parseInt(highScore)) {
-      localStorage.setItem('quizHighScore', score.toString());
+    if (results) {
+      const highScore = localStorage.getItem('quizHighScore');
+      if (!highScore || results.score > parseInt(highScore)) {
+        localStorage.setItem('quizHighScore', results.score.toString());
+        console.log("Updated high score to:", results.score);
+      }
     }
-  }, [score]);
-  
+  }, [results]);
+
   const getHighScore = () => {
     return localStorage.getItem('quizHighScore') || 0;
   };
-  
+
   const getAnswerStatus = (questionIndex) => {
-    const userAnswer = userAnswers[questionIndex];
+    if (!results || !results.userAnswers || !results.questions) {
+      console.log(`Question ${questionIndex}: No results available`);
+      return 'unanswered';
+    }
+    
+    const userAnswer = results.userAnswers[questionIndex];
     console.log(`Question ${questionIndex}: userAnswer =`, userAnswer);
     if (userAnswer === null || userAnswer === undefined) return 'unanswered';
     
-    const correctAnswer = questions[questionIndex].correctAnswer;
-    const userSelectedOption = questions[questionIndex].options[userAnswer];
+    const correctAnswer = results.questions[questionIndex].correctAnswer;
+    const userSelectedOption = results.questions[questionIndex].options[userAnswer];
     console.log(`Question ${questionIndex}: userSelectedOption =`, userSelectedOption);
     console.log(`Question ${questionIndex}: correctAnswer =`, correctAnswer);
     
     return userSelectedOption === correctAnswer ? 'correct' : 'incorrect';
   };
-  
+
   const handleRestart = () => {
     restartQuiz();
   };
+
+  const handleGoToQuiz = () => {
+    navigate('/');
+  };
+
+  if (loading || !isInitialized) {
+    return (
+      <div className="results-container loading">
+        <div className="loader"></div>
+        <p>Loading results...</p>
+      </div>
+    );
+  }
+
+  if (!results) {
+    return (
+      <div className="results-container error">
+        <h2>Error</h2>
+        <p>No quiz results found. Please start a new quiz.</p>
+        <div className="error-actions">
+          <button onClick={handleGoToQuiz} className="restart-button">
+            Start New Quiz
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const { userAnswers, score, questions } = results;
   
   // Calculate percentage for better score display
   const percentage = questions.length > 0 ? Math.round((score / questions.length) * 100) : 0;
@@ -56,15 +106,6 @@ const Results = () => {
     if (percentage >= 40) return "Keep trying! 💪";
     return "Better luck next time! 📚";
   };
-  
-  if (!questions.length) {
-    return (
-      <div className="results-container loading">
-        <div className="loader"></div>
-        <p>Loading results...</p>
-      </div>
-    );
-  }
   
   // Calculate statistics
   const correctCount = score;
@@ -80,7 +121,6 @@ const Results = () => {
         
         <div className="score-display">
           <div className="score-circle">
-            {/* Updated to use score-row for horizontal layout */}
             <div className="score-row">
               <span className="score-number">{score}</span>
               <span className="score-total">/{questions.length}</span>
