@@ -17,10 +17,8 @@ const Quiz = () => {
     selectedOption,
     handleAnswer,
     changeDifficulty,
-    // eslint-disable-next-line no-unused-vars
-    userAnswers, // Now used to track progress
-    // eslint-disable-next-line no-unused-vars
-    score        // Now displayed to user
+    userAnswers, // Used to track progress
+    score        // Displayed to user
   } = useQuizContext();
 
   if (loading) {
