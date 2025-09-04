@@ -1,0 +1,83 @@
+{
+  "easy": [
+    {
+      "question": "What is the capital of France?",
+      "options": ["Berlin", "Madrid", "Paris", "Rome"],
+      "correctAnswer": "Paris"
+    },
+    {
+      "question": "Which planet is known as the Red Planet?",
+      "options": ["Earth", "Mars", "Jupiter", "Venus"],
+      "correctAnswer": "Mars"
+    },
+    {
+      "question": "What is the largest mammal in the world?",
+      "options": ["Elephant", "Blue Whale", "Giraffe", "Hippopotamus"],
+      "correctAnswer": "Blue Whale"
+    },
+    {
+      "question": "Who wrote 'Romeo and Juliet'?",
+      "options": ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"],
+      "correctAnswer": "William Shakespeare"
+    },
+    {
+      "question": "What is the chemical symbol for gold?",
+      "options": ["Go", "Gd", "Au", "Ag"],
+      "correctAnswer": "Au"
+    }
+  ],
+  "medium": [
+    {
+      "question": "In React, what is used to pass data to a component from outside?",
+      "options": ["setState", "props", "render", "state"],
+      "correctAnswer": "props"
+    },
+    {
+      "question": "What method is used to change the state in a React component?",
+      "options": ["changeState()", "updateState()", "setState()", "modifyState()"],
+      "correctAnswer": "setState()"
+    },
+    {
+      "question": "Which hook is used to perform side effects in functional components?",
+      "options": ["useEffect", "useState", "useContext", "useReducer"],
+      "correctAnswer": "useEffect"
+    },
+    {
+      "question": "What is JSX in React?",
+      "options": ["A JavaScript library", "A syntax extension for JavaScript", "A testing framework", "A state management tool"],
+      "correctAnswer": "A syntax extension for JavaScript"
+    },
+    {
+      "question": "Which of the following is NOT a React hook?",
+      "options": ["useState", "useEffect", "useComponent", "useContext"],
+      "correctAnswer": "useComponent"
+    }
+  ],
+  "hard": [
+    {
+      "question": "What is the purpose of the key prop in React?",
+      "options": ["To style components", "To uniquely identify elements in a list", "To pass data to components", "To handle events"],
+      "correctAnswer": "To uniquely identify elements in a list"
+    },
+    {
+      "question": "In React, what is the Virtual DOM?",
+      "options": ["A copy of the real DOM kept in memory", "A testing environment", "A styling tool", "A state management library"],
+      "correctAnswer": "A copy of the real DOM kept in memory"
+    },
+    {
+      "question": "Which hook is used to manage state in functional components?",
+      "options": ["useEffect", "useContext", "useState", "useReducer"],
+      "correctAnswer": "useState"
+    },
+    {
+      "question": "What is the correct way to import React in a component file?",
+      "options": ["import React from 'react';", "import { React } from 'react';", "import ReactComponent from 'react';", "import * as React from 'react';"],
+      "correctAnswer": "import React from 'react';"
+    },
+    {
+      "question": "What does the useEffect hook do in React?",
+      "options": ["Manages component state", "Handles component styling", "Performs side effects in functional components", "Creates component props"],
+      "correctAnswer": "Performs side effects in functional components"
+    }
+  ]
+}
