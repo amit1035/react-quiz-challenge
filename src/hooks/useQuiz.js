@@ -1,5 +1,5 @@
 // src/hooks/useQuiz.js
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchQuestions } from '../services/triviaAPI';
 
@@ -15,9 +15,7 @@ const useQuiz = () => {
   const [timeLeft, setTimeLeft] = useState(30);
   const [timerActive, setTimerActive] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
-  
-  // Create a ref for handleAnswer to avoid dependency issues
-  const handleAnswerRef = useRef();
+  const [quizCompleted, setQuizCompleted] = useState(false);
 
   // Initialize quiz
   useEffect(() => {
@@ -31,6 +29,7 @@ const useQuiz = () => {
         setCurrentQuestionIndex(0);
         setSelectedOption(null);
         setTimerActive(true);
+        setQuizCompleted(false);
       } catch (err) {
         setError('Failed to load questions. Please try again later.');
         console.error(err);
@@ -42,43 +41,7 @@ const useQuiz = () => {
     initializeQuiz();
   }, [difficulty]);
 
-  // Memoize handleAnswer with useCallback
-  const handleAnswer = useCallback((answerIndex) => {
-    setSelectedOption(answerIndex);
-    
-    const newUserAnswers = [...userAnswers];
-    newUserAnswers[currentQuestionIndex] = answerIndex;
-    setUserAnswers(newUserAnswers);
-    
-    if (answerIndex !== null) {
-      const selectedOptionText = questions[currentQuestionIndex].options[answerIndex];
-      const correctAnswerText = questions[currentQuestionIndex].correctAnswer;
-      if (selectedOptionText === correctAnswerText) {
-        setScore(prevScore => prevScore + 1);
-      }
-    }
-    
-    setTimeLeft(30);
-    
-    setTimeout(() => {
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(prevIndex => prevIndex + 1);
-        setSelectedOption(null);
-      } else {
-        setTimerActive(false);
-        setTimeout(() => {
-          navigate('/results');
-        }, 100);
-      }
-    }, 500);
-  }, [currentQuestionIndex, userAnswers, questions, navigate]);
-
-  // Update the ref whenever handleAnswer changes
-  useEffect(() => {
-    handleAnswerRef.current = handleAnswer;
-  }, [handleAnswer]);
-
-  // Timer effect - now uses the ref instead of direct function
+  // Timer effect
   useEffect(() => {
     let timer;
     
@@ -86,26 +49,87 @@ const useQuiz = () => {
       timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
     } else if (timerActive && timeLeft === 0) {
       // Time's up, lock in no answer and move to next question
-      handleAnswerRef.current(null);
+      handleAnswer(null);
     }
     
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [timerActive, timeLeft]); // No handleAnswer dependency needed
+  }, [timerActive, timeLeft]);
+
+  const handleAnswer = useCallback((answerIndex) => {
+    console.log("handleAnswer called with:", answerIndex);
+    console.log("Current question index:", currentQuestionIndex);
+    
+    // Update the selected option immediately
+    setSelectedOption(answerIndex);
+    
+    // Create a new array with the updated answer
+    const newUserAnswers = [...userAnswers];
+    newUserAnswers[currentQuestionIndex] = answerIndex;
+    console.log("Updated userAnswers:", newUserAnswers);
+    setUserAnswers(newUserAnswers);
+    
+    // Check if answer is correct and update score
+    if (answerIndex !== null) {
+      const selectedOptionText = questions[currentQuestionIndex].options[answerIndex];
+      const correctAnswerText = questions[currentQuestionIndex].correctAnswer;
+      console.log("Selected option:", selectedOptionText);
+      console.log("Correct answer:", correctAnswerText);
+      if (selectedOptionText === correctAnswerText) {
+        console.log("Answer is correct, updating score");
+        setScore(prevScore => {
+          const newScore = prevScore + 1;
+          console.log("New score:", newScore);
+          return newScore;
+        });
+      } else {
+        console.log("Answer is incorrect");
+      }
+    } else {
+      console.log("No answer selected");
+    }
+    
+    // Reset timer for next question
+    setTimeLeft(30);
+    
+    // Move to next question or finish quiz after a short delay
+    setTimeout(() => {
+      if (currentQuestionIndex < questions.length - 1) {
+        console.log("Moving to next question");
+        setCurrentQuestionIndex(prevIndex => prevIndex + 1);
+        setSelectedOption(null); // Reset selected option for next question
+      } else {
+        // Quiz finished
+        console.log("Quiz finished, setting completed flag");
+        setTimerActive(false);
+        setQuizCompleted(true);
+        // Make sure we save the final state before navigating
+        setTimeout(() => {
+          console.log("Final userAnswers:", userAnswers);
+          console.log("Final score:", score);
+          navigate('/results');
+        }, 100);
+      }
+    }, 500);
+  }, [currentQuestionIndex, userAnswers, questions, navigate, score]);
 
   const restartQuiz = () => {
+    console.log("Restarting quiz");
     setCurrentQuestionIndex(0);
     setUserAnswers([]);
     setScore(0);
     setSelectedOption(null);
     setTimeLeft(30);
     setTimerActive(true);
+    setQuizCompleted(false);
     navigate('/');
   };
 
   const changeDifficulty = (newDifficulty) => {
+    console.log("Changing difficulty to:", newDifficulty);
     setDifficulty(newDifficulty);
+    // The rest will be handled by the initializeQuiz effect
   };
 
   return {
@@ -119,6 +143,7 @@ const useQuiz = () => {
     timeLeft,
     timerActive,
     selectedOption,
+    quizCompleted,
     handleAnswer,
     restartQuiz,
     changeDifficulty
