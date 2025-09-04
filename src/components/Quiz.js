@@ -1,6 +1,6 @@
 // src/components/Quiz.js
 import React from 'react';
-import { useQuizContext } from '../context/QuizContext';
+import useQuiz from '../hooks/useQuiz';
 import Question from './Question';
 import Timer from './Timer';
 import ProgressBar from './ProgressBar';
@@ -10,7 +10,6 @@ const Quiz = () => {
   const {
     questions,
     currentQuestionIndex,
-    userAnswers,
     loading,
     error,
     difficulty,
@@ -18,7 +17,7 @@ const Quiz = () => {
     selectedOption,
     handleAnswer,
     changeDifficulty
-  } = useQuizContext();
+  } = useQuiz(); // Removed userAnswers from destructuring
 
   if (loading) {
     return (
