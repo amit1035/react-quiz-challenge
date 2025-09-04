@@ -77,8 +77,9 @@ State Management: Used React Context API to maintain state across components and
 React Hook Dependencies: Resolved dependency issues in useEffect and useCallback hooks using refs to avoid unnecessary re-renders.
 Responsive Design: Created a mobile-first design with CSS Grid and Flexbox for optimal viewing on all devices.
 Routing on Static Hosting: Added _redirects file for proper React Router functionality on Netlify.
+
 Live Demo
-Check out the live application: https://react-quiz-challenge.netlify.app
+Check out the live application: https://thequizcraft.netlify.app/
 
 Future Enhancements
 Add more question categories
