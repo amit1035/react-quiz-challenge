@@ -1,5 +1,5 @@
 // src/hooks/useQuiz.js
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchQuestions } from '../services/triviaAPI';
 
@@ -14,6 +14,10 @@ const useQuiz = () => {
   const [difficulty, setDifficulty] = useState('medium');
   const [timeLeft, setTimeLeft] = useState(30);
   const [timerActive, setTimerActive] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
+  
+  // Create a ref for handleAnswer to avoid dependency issues
+  const handleAnswerRef = useRef(null);
 
   // Initialize quiz
   useEffect(() => {
@@ -23,6 +27,9 @@ const useQuiz = () => {
         const fetchedQuestions = await fetchQuestions(10, difficulty);
         setQuestions(fetchedQuestions);
         setUserAnswers(new Array(fetchedQuestions.length).fill(null));
+        setScore(0);
+        setCurrentQuestionIndex(0);
+        setSelectedOption(null);
         setTimerActive(true);
       } catch (err) {
         setError('Failed to load questions. Please try again later.');
@@ -35,7 +42,7 @@ const useQuiz = () => {
     initializeQuiz();
   }, [difficulty]);
 
-  // Timer effect
+  // Timer effect - using ref to avoid dependency issues
   useEffect(() => {
     let timer;
     
@@ -43,45 +50,54 @@ const useQuiz = () => {
       timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
     } else if (timerActive && timeLeft === 0) {
       // Time's up, lock in no answer and move to next question
-      handleAnswer(null);
+      handleAnswerRef.current(null);
     }
     
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [timerActive, timeLeft]);
+  }, [timerActive, timeLeft]); // No handleAnswer dependency needed
 
   const handleAnswer = (answerIndex) => {
+    setSelectedOption(answerIndex);
+    
     const newUserAnswers = [...userAnswers];
     newUserAnswers[currentQuestionIndex] = answerIndex;
     setUserAnswers(newUserAnswers);
     
-    // Check if answer is correct - FIXED: Compare option text with correct answer text
     if (answerIndex !== null) {
       const selectedOptionText = questions[currentQuestionIndex].options[answerIndex];
       const correctAnswerText = questions[currentQuestionIndex].correctAnswer;
       if (selectedOptionText === correctAnswerText) {
-        setScore(prevScore => prevScore + 1); // Use functional update to avoid stale state
+        setScore(prevScore => prevScore + 1);
       }
     }
     
-    // Reset timer for next question
     setTimeLeft(30);
     
-    // Move to next question or finish quiz
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else {
-      // Quiz finished
-      setTimerActive(false);
-      navigate('/results');
-    }
+    setTimeout(() => {
+      if (currentQuestionIndex < questions.length - 1) {
+        setCurrentQuestionIndex(prevIndex => prevIndex + 1);
+        setSelectedOption(null);
+      } else {
+        setTimerActive(false);
+        setTimeout(() => {
+          navigate('/results');
+        }, 100);
+      }
+    }, 500);
   };
+  
+  // Update the ref whenever handleAnswer changes
+  useEffect(() => {
+    handleAnswerRef.current = handleAnswer;
+  }, [handleAnswer]);
 
   const restartQuiz = () => {
     setCurrentQuestionIndex(0);
     setUserAnswers([]);
     setScore(0);
+    setSelectedOption(null);
     setTimeLeft(30);
     setTimerActive(true);
     navigate('/');
@@ -89,10 +105,6 @@ const useQuiz = () => {
 
   const changeDifficulty = (newDifficulty) => {
     setDifficulty(newDifficulty);
-    setCurrentQuestionIndex(0);
-    setUserAnswers([]);
-    setScore(0);
-    setTimeLeft(30);
   };
 
   return {
@@ -105,6 +117,7 @@ const useQuiz = () => {
     difficulty,
     timeLeft,
     timerActive,
+    selectedOption,
     handleAnswer,
     restartQuiz,
     changeDifficulty

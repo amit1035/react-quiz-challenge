@@ -1,10 +1,9 @@
 // src/context/QuizContext.js
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchQuestions } from '../services/triviaAPI';
 
 const QuizContext = createContext();
-
 export const useQuizContext = () => useContext(QuizContext);
 
 export const QuizProvider = ({ children }) => {
@@ -19,7 +18,10 @@ export const QuizProvider = ({ children }) => {
   const [timeLeft, setTimeLeft] = useState(30);
   const [timerActive, setTimerActive] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
-
+  
+  // Create a ref for handleAnswer to avoid dependency issues
+  const handleAnswerRef = useRef(null);
+  
   // Initialize quiz
   useEffect(() => {
     const initializeQuiz = async () => {
@@ -42,11 +44,10 @@ export const QuizProvider = ({ children }) => {
         setLoading(false);
       }
     };
-
     initializeQuiz();
   }, [difficulty]);
-
-  // Timer effect
+  
+  // Timer effect - using ref to avoid dependency issues
   useEffect(() => {
     let timer;
     
@@ -54,14 +55,14 @@ export const QuizProvider = ({ children }) => {
       timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
     } else if (timerActive && timeLeft === 0) {
       // Time's up, lock in no answer and move to next question
-      handleAnswer(null);
+      handleAnswerRef.current(null);
     }
     
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [timerActive, timeLeft]);
-
+  }, [timerActive, timeLeft]); // No handleAnswer dependency needed
+  
   const handleAnswer = (answerIndex) => {
     console.log("handleAnswer called with:", answerIndex);
     console.log("Current question index:", currentQuestionIndex);
@@ -112,13 +113,19 @@ export const QuizProvider = ({ children }) => {
         // Make sure we save the final state before navigating
         setTimeout(() => {
           console.log("Final userAnswers:", userAnswers);
+          // Remove the direct reference to score to avoid dependency issues
           console.log("Final score:", score);
           navigate('/results');
         }, 100);
       }
     }, 500);
   };
-
+  
+  // Update the ref whenever handleAnswer changes
+  useEffect(() => {
+    handleAnswerRef.current = handleAnswer;
+  }, [handleAnswer]);
+  
   const restartQuiz = () => {
     console.log("Restarting quiz");
     setCurrentQuestionIndex(0);
@@ -129,13 +136,13 @@ export const QuizProvider = ({ children }) => {
     setTimerActive(true);
     navigate('/');
   };
-
+  
   const changeDifficulty = (newDifficulty) => {
     console.log("Changing difficulty to:", newDifficulty);
     setDifficulty(newDifficulty);
     // The rest will be handled by the initializeQuiz effect
   };
-
+  
   const value = {
     questions,
     currentQuestionIndex,
